@@ -74,58 +74,12 @@ services:
       - key: MINIO_BUCKET_UPLOADS
         value: retailflux-uploads
 
-  # ── Celery Worker + Beat ─────────────────────────────────────────────────────
-  # --beat combines scheduled-task dispatch + worker execution in one process.
-  # Acceptable for free-tier (1 instance); in prod separate them.
-  - type: worker
-    name: retailflux-worker
-    runtime: python
-    region: oregon
-    plan: free
-    rootDir: apps/api
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A app.workers.celery_app worker --beat --loglevel=info --concurrency=2
-    autoDeploy: true
-    envVars:
-      - key: ENVIRONMENT
-        value: production
+  # ── Celery Worker disabled on free plan ──────────────────────────────────────
+  # Background workers require Render paid plan.
+  # Periodic tasks (alerts, forecasts) are not available on free tier.
+  # To enable: upgrade to Starter plan and uncomment the worker service below.
+  #
+  # - type: worker
+  #   name: retailflux-worker
+  #   ...
 
-      - key: DATABASE_URL
-        sync: false
-      # Must equal the API service SECRET_KEY; copy it from the API service
-      # env panel in the Render dashboard after first deploy.
-      - key: SECRET_KEY
-        sync: false
-
-      - key: REDIS_URL
-        sync: false
-      - key: CELERY_BROKER_URL
-        sync: false
-
-      - key: MONGODB_URL
-        sync: false
-      - key: MONGODB_DATABASE
-        value: retailflux
-
-      # Alert tasks call Gemini + send emails
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: GEMINI_MODEL
-        value: gemini-2.5-flash-lite
-      - key: GROQ_API_KEY
-        sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: EMAIL_FROM
-        value: noreply@retailflux.app
-
-      - key: MINIO_ENDPOINT
-        sync: false
-      - key: MINIO_ACCESS_KEY
-        sync: false
-      - key: MINIO_SECRET_KEY
-        sync: false
-      - key: MINIO_USE_SSL
-        value: "true"
-      - key: MINIO_BUCKET_UPLOADS
-        value: retailflux-uploads
