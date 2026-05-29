@@ -1,0 +1,131 @@
+services:
+  # ── FastAPI API ──────────────────────────────────────────────────────────────
+  - type: web
+    name: retailflux-api
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: apps/api
+    buildCommand: pip install -r requirements.txt && alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      # ── Database (Neon — set after creating Neon project) ─────────────────────
+      # Format: postgresql+asyncpg://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+
+      # ── Auth ─────────────────────────────────────────────────────────────────
+      # Render generates a random 64-char hex string; copy this value to the worker
+      - key: SECRET_KEY
+        generateValue: true
+
+      # ── Redis (Upstash — set after creating Upstash db) ───────────────────────
+      # Format: rediss://default:<token>@<host>.upstash.io:6379
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false          # same Upstash URL works; Celery uses db 1 by appending /1
+
+      # ── MongoDB (Atlas M0 — set after creating cluster) ───────────────────────
+      # Format: mongodb+srv://user:pass@cluster0.xxx.mongodb.net/retailflux
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DATABASE
+        value: retailflux
+
+      # ── CORS (set to your Vercel deployment URL) ──────────────────────────────
+      # e.g. https://retailflux.vercel.app
+      - key: FRONTEND_URL
+        sync: false
+
+      # ── LLM ──────────────────────────────────────────────────────────────────
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash-lite
+      - key: GROQ_API_KEY
+        sync: false
+
+      # ── Email (Resend) ────────────────────────────────────────────────────────
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@retailflux.app
+
+      # ── Monitoring ────────────────────────────────────────────────────────────
+      - key: SENTRY_DSN
+        sync: false
+
+      # ── Object Storage (Cloudflare R2 — S3-compatible) ────────────────────────
+      # Endpoint format: <account_id>.r2.cloudflarestorage.com
+      - key: MINIO_ENDPOINT
+        sync: false
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        sync: false
+      - key: MINIO_USE_SSL
+        value: "true"
+      - key: MINIO_BUCKET_UPLOADS
+        value: retailflux-uploads
+
+  # ── Celery Worker + Beat ─────────────────────────────────────────────────────
+  # --beat combines scheduled-task dispatch + worker execution in one process.
+  # Acceptable for free-tier (1 instance); in prod separate them.
+  - type: worker
+    name: retailflux-worker
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: apps/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.workers.celery_app worker --beat --loglevel=info --concurrency=2
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      - key: DATABASE_URL
+        sync: false
+      # Must equal the API service SECRET_KEY; copy it from the API service
+      # env panel in the Render dashboard after first deploy.
+      - key: SECRET_KEY
+        sync: false
+
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DATABASE
+        value: retailflux
+
+      # Alert tasks call Gemini + send emails
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash-lite
+      - key: GROQ_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@retailflux.app
+
+      - key: MINIO_ENDPOINT
+        sync: false
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        sync: false
+      - key: MINIO_USE_SSL
+        value: "true"
+      - key: MINIO_BUCKET_UPLOADS
+        value: retailflux-uploads

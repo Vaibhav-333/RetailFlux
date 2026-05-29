@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Light mode base tokens ──────────────────────────────────────────────── */
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 239 84% 67%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --radius: 0.5rem;
+
+    /* ── Layout ──────────────────────────────────────────────────────────────── */
+    --sidebar-width: 240px;
+    --sidebar-collapsed-width: 64px;
+    --topbar-height: 56px;
+
+    /* ── Surface elevation scale (light) ────────────────────────────────────── */
+    --surface-1: 0 0% 100%;
+    --surface-2: 220 14.3% 97%;
+    --surface-3: 220 14.3% 94%;
+    --surface-overlay: 220 14.3% 91%;
+
+    /* ── Semantic state tokens ───────────────────────────────────────────────── */
+    --ok:   142 71% 45%;
+    --warn: 38  92% 50%;
+    --bad:  0   72% 51%;
+    --info: 217 91% 60%;
+    --ai:   270 85% 65%;       /* base violet for AI surfaces */
+    --ai-from: 270 85% 65%;    /* gradient start — violet */
+    --ai-to:   196 92% 52%;    /* gradient end — cyan */
+
+    /* ── Glow accent ─────────────────────────────────────────────────────────── */
+    --brand-glow: 0 0 24px hsl(239 84% 67% / 0.35);
+
+    /* ── Motion tokens ───────────────────────────────────────────────────────── */
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --dur-1: 120ms;
+    --dur-2: 200ms;
+    --dur-3: 320ms;
+
+    /* ── Density tokens (comfortable default) ────────────────────────────────── */
+    --density-p-card: 1rem;
+    --density-p-section: 1.5rem;
+    --density-gap: 1rem;
+    --density-text-metric: 1.5rem;    /* text-2xl */
+    --density-text-metric-sm: 1.25rem; /* text-xl */
+  }
+
+  .dark {
+    /* ── Dark mode base tokens ───────────────────────────────────────────────── */
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 6%;
+    --card-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 239 84% 67%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 224 71.4% 4.1%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --popover: 224 71.4% 6%;
+    --popover-foreground: 210 20% 98%;
+
+    /* ── Surface elevation scale (dark) — layered glass effect ──────────────── */
+    --surface-1: 224 71.4% 6%;   /* = --card */
+    --surface-2: 224 71.4% 8%;
+    --surface-3: 224 71.4% 11%;
+    --surface-overlay: 224 71.4% 14%;
+
+    /* ── Semantic state tokens (slightly brighter on dark) ──────────────────── */
+    --ok:   142 71% 55%;
+    --warn: 38  92% 58%;
+    --bad:  0   72% 60%;
+    --info: 217 91% 65%;
+    --ai:   270 85% 70%;
+    --ai-from: 270 85% 70%;
+    --ai-to:   196 92% 60%;
+  }
+
+  /* ── Density compact override ────────────────────────────────────────────── */
+  body.density-compact {
+    --density-p-card: 0.75rem;
+    --density-p-section: 1.125rem;
+    --density-gap: 0.75rem;
+    --density-text-metric: 1.25rem;    /* text-xl */
+    --density-text-metric-sm: 1.125rem; /* text-lg */
+    font-size: 0.875rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* ── Scrollbar ───────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/30; }
+
+  /* ── Focus rings ─────────────────────────────────────────────────────────── */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* ── KPI card standard ───────────────────────────────────────────────────── */
+  .kpi-card {
+    @apply bg-card border border-border rounded-lg flex flex-col gap-1;
+    padding: var(--density-p-card, 1rem);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
+    transition: transform var(--dur-2, 200ms) var(--ease-emphasized, ease),
+                box-shadow var(--dur-2, 200ms) var(--ease-emphasized, ease),
+                border-color var(--dur-2, 200ms) ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--brand-glow), inset 0 1px 0 hsl(0 0% 100% / 0.06);
+  }
+
+  /* ── Metric number ───────────────────────────────────────────────────────── */
+  .metric-value {
+    @apply font-semibold tracking-tight tabular-nums;
+    font-size: var(--density-text-metric, 1.5rem);
+    font-feature-settings: "ss01", "cv11", "tnum";
+  }
+
+  /* ── Status badge variants ───────────────────────────────────────────────── */
+  .badge-ok      { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full; background: hsl(var(--ok)/0.1); color: hsl(var(--ok)); }
+  .badge-warn    { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full; background: hsl(var(--warn)/0.1); color: hsl(var(--warn)); }
+  .badge-bad     { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full; background: hsl(var(--bad)/0.1); color: hsl(var(--bad)); }
+  .badge-info    { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full; background: hsl(var(--info)/0.1); color: hsl(var(--info)); }
+  .badge-ai      { @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full; background: hsl(var(--ai)/0.1); color: hsl(var(--ai)); }
+  /* Legacy aliases */
+  .badge-success { @apply badge-ok; }
+  .badge-warning { @apply badge-warn; }
+  .badge-danger  { @apply badge-bad; }
+
+  /* ── AI gradient surface ─────────────────────────────────────────────────── */
+  .ai-gradient {
+    background: linear-gradient(135deg, hsl(var(--ai-from)), hsl(var(--ai-to)));
+  }
+
+  .ai-gradient-subtle {
+    background: linear-gradient(135deg, hsl(var(--ai-from)/0.12), hsl(var(--ai-to)/0.12));
+  }
+
+  /* ── Surface elevation helpers ───────────────────────────────────────────── */
+  .surface-1 { background-color: hsl(var(--surface-1)); }
+  .surface-2 { background-color: hsl(var(--surface-2)); }
+  .surface-3 { background-color: hsl(var(--surface-3)); }
+
+  /* ── Density-compact overrides ───────────────────────────────────────────── */
+  body.density-compact .kpi-card {
+    padding: var(--density-p-card, 0.75rem);
+    gap: 0.125rem;
+  }
+
+  body.density-compact .metric-value {
+    font-size: var(--density-text-metric, 1.25rem);
+  }
+
+  body.density-compact .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+
+  body.density-compact .p-5 {
+    padding: 0.875rem;
+  }
+
+  body.density-compact .p-6 {
+    padding: 1rem;
+  }
+
+  body.density-compact .gap-4 {
+    gap: 0.75rem;
+  }
+}
