@@ -23,7 +23,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "@retailflux_api_url",
     "VITE_APP_NAME": "RetailFlux"
   }
 }
