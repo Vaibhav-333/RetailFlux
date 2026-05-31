@@ -31,13 +31,17 @@ except ImportError:  # pragma: no cover
 # Init structured logging
 configure_logging()
 
-# Init Sentry (no-op when DSN is empty)
-if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        environment=settings.ENVIRONMENT,
-        traces_sample_rate=0.1,
-    )
+# Init Sentry — only with a real DSN. An empty/placeholder/invalid DSN
+# raises BadDsn and would crash the whole app at import, so guard + wrap.
+if settings.SENTRY_DSN and settings.SENTRY_DSN.startswith("https://"):
+    try:
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.ENVIRONMENT,
+            traces_sample_rate=0.1,
+        )
+    except Exception as _sentry_exc:  # never let Sentry init crash the app
+        logger.warning(f"Sentry init failed, continuing without it: {_sentry_exc}")
 
 
 @asynccontextmanager
